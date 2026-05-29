@@ -3,6 +3,7 @@ from app.api.health import router as health_router
 from app.api.pods import router as pods_router
 from app.api.namespaces import router as namespaces_router
 from app.api.deployments import router as deployments_router
+from app.api.logs import router as logs_router
 
 app = FastAPI()
 
@@ -10,6 +11,7 @@ app.include_router(health_router)
 app.include_router(pods_router)
 app.include_router(namespaces_router)
 app.include_router(deployments_router)
+app.include_router(logs_router)
 
 @app.get("/")
 def home():

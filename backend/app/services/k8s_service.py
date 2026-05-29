@@ -64,3 +64,18 @@ def scale_deployment(deployment_name, namespace, replicas):
     return {
         "message": f"Deployment {deployment_name} scaled to {replicas} replicas"
     }
+
+def get_pod_logs(pod_name, namespace="default"):
+    logs = v1.read_namespaced_pod_log(
+        name=pod_name,
+        namespace=namespace
+    )
+
+    if isinstance(logs, bytes):
+        logs = logs.decode("utf-8")
+
+    return {
+        "pod": pod_name,
+        "namespace": namespace,
+        "logs": logs
+    }
