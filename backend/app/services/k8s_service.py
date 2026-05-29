@@ -28,3 +28,20 @@ def get_namespaces():
         namespace_list.append(ns.metadata.name)
 
     return namespace_list
+
+def get_deployments():
+    apps_v1 = client.AppsV1Api()
+
+    deployments = apps_v1.list_deployment_for_all_namespaces()
+
+    deployment_list = []
+
+    for deployment in deployments.items:
+        deployment_list.append({
+            "name": deployment.metadata.name,
+            "namespace": deployment.metadata.namespace,
+            "replicas": deployment.spec.replicas,
+            "available_replicas": deployment.status.available_replicas
+        })
+
+    return deployment_list
