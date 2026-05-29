@@ -17,3 +17,14 @@ def get_pods():
         })
 
     return pod_list
+
+
+def get_namespaces():
+    namespaces = v1.list_namespace()
+
+    namespace_list = []
+
+    for ns in namespaces.items:
+        namespace_list.append(ns.metadata.name)
+
+    return namespace_list
