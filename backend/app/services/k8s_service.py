@@ -45,3 +45,22 @@ def get_deployments():
         })
 
     return deployment_list
+def scale_deployment(deployment_name, namespace, replicas):
+    apps_v1 = client.AppsV1Api()
+
+    deployment = apps_v1.read_namespaced_deployment(
+        name=deployment_name,
+        namespace=namespace
+    )
+
+    deployment.spec.replicas = replicas
+
+    apps_v1.patch_namespaced_deployment(
+        name=deployment_name,
+        namespace=namespace,
+        body=deployment
+    )
+
+    return {
+        "message": f"Deployment {deployment_name} scaled to {replicas} replicas"
+    }
