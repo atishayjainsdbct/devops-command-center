@@ -4,6 +4,7 @@ from app.api.pods import router as pods_router
 from app.api.namespaces import router as namespaces_router
 from app.api.deployments import router as deployments_router
 from app.api.logs import router as logs_router
+from app.api.events import router as events_router
 
 app = FastAPI()
 
@@ -12,6 +13,7 @@ app.include_router(pods_router)
 app.include_router(namespaces_router)
 app.include_router(deployments_router)
 app.include_router(logs_router)
+app.include_router(events_router)
 
 @app.get("/")
 def home():

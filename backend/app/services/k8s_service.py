@@ -1,4 +1,5 @@
 from kubernetes import client, config
+from datetime import datetime
 
 config.load_kube_config()
 
@@ -79,3 +80,46 @@ def get_pod_logs(pod_name, namespace="default"):
         "namespace": namespace,
         "logs": logs
     }
+
+
+def restart_deployment(deployment_name, namespace):
+    apps_v1 = client.AppsV1Api()
+
+    deployment = apps_v1.read_namespaced_deployment(
+        name=deployment_name,
+        namespace=namespace
+    )
+
+    deployment.spec.template.metadata.annotations = (
+        deployment.spec.template.metadata.annotations or {}
+    )
+
+    deployment.spec.template.metadata.annotations[
+        "kubectl.kubernetes.io/restartedAt"
+    ] = datetime.utcnow().isoformat()
+
+    apps_v1.patch_namespaced_deployment(
+        name=deployment_name,
+        namespace=namespace,
+        body=deployment
+    )
+
+    return {
+        "message": f"Deployment {deployment_name} restarted"
+    }
+
+def get_events():
+    events = v1.list_event_for_all_namespaces()
+
+    event_list = []
+
+    for event in events.items:
+        event_list.append({
+            "namespace": event.metadata.namespace,
+            "type": event.type,
+            "reason": event.reason,
+            "object": event.involved_object.name,
+            "message": event.message
+        })
+
+    return event_list
