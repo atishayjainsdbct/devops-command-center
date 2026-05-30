@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-command-center
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: devops-command-center
+
+  template:
+    metadata:
+      labels:
+        app: devops-command-center
+
+    spec:
+      serviceAccountName: devops-command-center
+
+      containers:
+      - name: devops-command-center
+
+        image: devops-command-center:v3
+
+        imagePullPolicy: Never
+
+        ports:
+        - containerPort: 8000
