@@ -1,51 +1,51 @@
 import { useEffect, useState } from "react";
 import api from "./services/api";
 
+import Sidebar from "./components/Sidebar";
+import StatsCard from "./components/StatsCard";
+import PodsTable from "./components/PodsTable";
+
 function App() {
   const [pods, setPods] = useState([]);
 
   useEffect(() => {
-    console.log("Fetching pods...");
-
     api.get("/pods")
       .then((response) => {
-        console.log("API RESPONSE:", response.data);
-        console.log("COUNT:", response.data.length);
-
         setPods(response.data);
       })
       .catch((error) => {
-        console.error("ERROR:", error);
+        console.error(error);
       });
   }, []);
 
   return (
-    <div>
-      <div style={{ padding: "20px" }}>
-  <h1>DevOps Command Center</h1>
+    <div className="flex bg-slate-950 text-white min-h-screen">
+      <Sidebar />
 
-  <h2>Total Pods: {pods.length}</h2>
+      <div className="flex-1 p-8">
+        <h1 className="text-4xl font-bold mb-8">
+          Dashboard
+        </h1>
 
-  <table border="1" cellPadding="10">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Namespace</th>
-        <th>Status</th>
-      </tr>
-    </thead>
+        <div className="grid grid-cols-3 gap-6">
+          <StatsCard
+            title="Total Pods"
+            value={pods.length}
+          />
 
-    <tbody>
-      {pods.map((pod) => (
-        <tr key={pod.name}>
-          <td>{pod.name}</td>
-          <td>{pod.namespace}</td>
-          <td>{pod.status}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+          <StatsCard
+            title="Deployments"
+            value="1"
+          />
+
+          <StatsCard
+            title="Namespaces"
+            value="3"
+          />
+        </div>
+
+        <PodsTable pods={pods} />
+      </div>
     </div>
   );
 }
