@@ -62,6 +62,30 @@ function App() {
     }
   };
 
+  const handleRestart = async (deployment) => {
+    const confirmed = window.confirm(
+      `Restart deployment ${deployment.name}?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await api.post("/deployments/restart", {
+        deployment_name: deployment.name,
+        namespace: deployment.namespace,
+      });
+
+      alert("Deployment restarted successfully!");
+
+      const response = await api.get("/deployments");
+      setDeployments(response.data);
+
+    } catch (error) {
+      console.error(error);
+      alert("Restart failed");
+    }
+  };
+
   return (
     <div className="flex bg-slate-950 text-white min-h-screen">
       <Sidebar />
@@ -93,6 +117,7 @@ function App() {
         <DeploymentsTable
           deployments={deployments}
           onScale={handleScale}
+          onRestart={handleRestart}
         />
       </div>
     </div>

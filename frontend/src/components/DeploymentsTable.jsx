@@ -1,6 +1,7 @@
 export default function DeploymentsTable({
   deployments,
-  onScale,
+  onScale, 
+  onRestart,
 }) {
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mt-6">
@@ -39,11 +40,18 @@ export default function DeploymentsTable({
 
               <td>
                 <button
-                  onClick={() => onScale(deployment)}
-                  className="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded-lg transition"
-                >
-                  Scale
-                </button>
+                     onClick={() => onScale(deployment)}
+                     className="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded-lg transition"
+                      >
+                    Scale
+                    </button>
+
+                 <button
+                     onClick={() => onRestart(deployment)}
+                     className="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-lg transition ml-2"
+                      >
+                     Restart
+                     </button>
               </td>
             </tr>
           ))}
