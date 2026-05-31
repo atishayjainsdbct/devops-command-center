@@ -1,6 +1,20 @@
 export default function StatsCard({ title, value }) {
   return (
-    <div className="bg-slate-900 rounded-xl border border-slate-800 p-6">
+    <div
+  className="
+  bg-slate-900
+  rounded-xl
+  border
+  border-slate-800
+  p-6
+  hover:border-cyan-400
+  hover:shadow-lg
+  hover:shadow-cyan-500/20
+  hover:-translate-y-1
+  transition-all
+  duration-300
+"
+>
       <h3 className="text-slate-400 text-sm">
         {title}
       </h3>

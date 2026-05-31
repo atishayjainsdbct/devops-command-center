@@ -4,9 +4,12 @@ import api from "./services/api";
 import Sidebar from "./components/Sidebar";
 import StatsCard from "./components/StatsCard";
 import PodsTable from "./components/PodsTable";
+import DeploymentsTable from "./components/DeploymentsTable";
 
 function App() {
   const [pods, setPods] = useState([]);
+  const [deployments, setDeployments] = useState([]);
+  const [namespaces, setNamespaces] = useState([]);
 
   useEffect(() => {
     api.get("/pods")
@@ -16,7 +19,48 @@ function App() {
       .catch((error) => {
         console.error(error);
       });
+
+    api.get("/deployments")
+      .then((response) => {
+        setDeployments(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    api.get("/namespaces")
+      .then((response) => {
+        setNamespaces(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }, []);
+
+  const handleScale = async (deployment) => {
+    const replicas = prompt(
+      `Enter replicas for ${deployment.name}`
+    );
+
+    if (!replicas) return;
+
+    try {
+      await api.post("/deployments/scale", {
+        deployment_name: deployment.name,
+        namespace: deployment.namespace,
+        replicas: Number(replicas),
+      });
+
+      alert("Deployment scaled successfully!");
+
+      const response = await api.get("/deployments");
+      setDeployments(response.data);
+
+    } catch (error) {
+      console.error(error);
+      alert("Scaling failed");
+    }
+  };
 
   return (
     <div className="flex bg-slate-950 text-white min-h-screen">
@@ -35,16 +79,21 @@ function App() {
 
           <StatsCard
             title="Deployments"
-            value="1"
+            value={deployments.length}
           />
 
           <StatsCard
             title="Namespaces"
-            value="3"
+            value={namespaces.length}
           />
         </div>
 
         <PodsTable pods={pods} />
+
+        <DeploymentsTable
+          deployments={deployments}
+          onScale={handleScale}
+        />
       </div>
     </div>
   );

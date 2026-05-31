@@ -19,7 +19,8 @@ export default function PodsTable({ pods }) {
             <tr key={pod.name} className="border-b border-slate-800">
               <td className="py-3">{pod.name}</td>
               <td>{pod.namespace}</td>
-              <td className="text-green-400">{pod.status}</td>
+              <td><span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">
+               {pod.status}</span></td>
             </tr>
           ))}
         </tbody>
