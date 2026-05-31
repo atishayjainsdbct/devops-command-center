@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import api from "./services/api";
-
 import Sidebar from "./components/Sidebar";
 import StatsCard from "./components/StatsCard";
 import PodsTable from "./components/PodsTable";
 import DeploymentsTable from "./components/DeploymentsTable";
+import LogsViewer from "./components/LogsViewer";
+import EventsTable from "./components/EventsTable";
 
 function App() {
   const [pods, setPods] = useState([]);
   const [deployments, setDeployments] = useState([]);
   const [namespaces, setNamespaces] = useState([]);
+  const [logs, setLogs] = useState("");
+  const [selectedPod, setSelectedPod] = useState("");
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
     api.get("/pods")
@@ -19,8 +23,17 @@ function App() {
       .catch((error) => {
         console.error(error);
       });
-
-    api.get("/deployments")
+       
+    api.get("/events")
+        .then((response) => {
+          setEvents(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+ 
+ 
+      api.get("/deployments")
       .then((response) => {
         setDeployments(response.data);
       })
@@ -86,6 +99,26 @@ function App() {
     }
   };
 
+  const handleViewLogs = async (pod) => {
+  try {
+    const response = await api.get(
+      `/logs/${pod.namespace}/${pod.name}`
+    );
+
+    setLogs(response.data.logs);
+    setSelectedPod(pod.name);
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to fetch logs");
+  }
+};
+
+   const handleCloseLogs = () => {
+       setSelectedPod("");
+       setLogs("");
+      };
+
   return (
     <div className="flex bg-slate-950 text-white min-h-screen">
       <Sidebar />
@@ -112,13 +145,23 @@ function App() {
           />
         </div>
 
-        <PodsTable pods={pods} />
+<PodsTable
+  pods={pods}
+  onViewLogs={handleViewLogs}
+/>
 
+<LogsViewer
+  selectedPod={selectedPod}
+  logs={logs}
+  onClose={handleCloseLogs}
+/>
         <DeploymentsTable
           deployments={deployments}
           onScale={handleScale}
           onRestart={handleRestart}
         />
+        <EventsTable events={events} />
+
       </div>
     </div>
   );

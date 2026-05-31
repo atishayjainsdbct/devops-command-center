@@ -1,4 +1,4 @@
-export default function PodsTable({ pods }) {
+export default function PodsTable({ pods,onViewLogs,}) {
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mt-6">
       <h2 className="text-xl font-bold mb-4">
@@ -11,6 +11,7 @@ export default function PodsTable({ pods }) {
             <th className="pb-3">Name</th>
             <th className="pb-3">Namespace</th>
             <th className="pb-3">Status</th>
+            <th className="pb-3">Actions</th>
           </tr>
         </thead>
 
@@ -21,6 +22,10 @@ export default function PodsTable({ pods }) {
               <td>{pod.namespace}</td>
               <td><span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">
                {pod.status}</span></td>
+               <td>
+                   <button
+                   onClick={() => onViewLogs(pod)}
+                   className="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg"> Logs</button></td>
             </tr>
           ))}
         </tbody>
