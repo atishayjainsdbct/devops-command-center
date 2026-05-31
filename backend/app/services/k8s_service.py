@@ -1,7 +1,7 @@
 from kubernetes import client, config
 from datetime import datetime
 import subprocess
-
+from kubernetes.client.rest import ApiException
 try:
     config.load_incluster_config()
     print("Running inside Kubernetes")
@@ -78,19 +78,27 @@ def scale_deployment(deployment_name, namespace, replicas):
     }
 
 def get_pod_logs(pod_name, namespace="default"):
-    logs = v1.read_namespaced_pod_log(
-        name=pod_name,
-        namespace=namespace
-    )
+    try:
+        logs = v1.read_namespaced_pod_log(
+            name=pod_name,
+            namespace=namespace
+        )
 
-    if isinstance(logs, bytes):
-        logs = logs.decode("utf-8")
+        if isinstance(logs, bytes):
+            logs = logs.decode("utf-8")
 
-    return {
-        "pod": pod_name,
-        "namespace": namespace,
-        "logs": logs
-    }
+        return {
+            "pod": pod_name,
+            "namespace": namespace,
+            "logs": logs
+        }
+
+    except ApiException as e:
+        return {
+            "error": str(e)
+        }
+
+
 def get_deployment_details(deployment_name, namespace="default"):
     apps_v1 = client.AppsV1Api()
 
