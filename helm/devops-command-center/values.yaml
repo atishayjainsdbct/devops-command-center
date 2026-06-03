@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: devops-command-center
-  tag: v999
+  tag: v3
   pullPolicy: Never
 
 service:
