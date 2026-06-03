@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: {{ include "devops-command-center.fullname" . }}
+  labels:
+    {{- include "devops-command-center.labels" . | nindent 4 }}
+
+spec:
+  replicas: {{ .Values.replicaCount }}
+
+  selector:
+    matchLabels:
+      {{- include "devops-command-center.selectorLabels" . | nindent 6 }}
+
+  template:
+    metadata:
+      labels:
+        {{- include "devops-command-center.selectorLabels" . | nindent 8 }}
+
+    spec:
+      serviceAccountName: {{ include "devops-command-center.serviceAccountName" . }}
+
+      containers:
+      - name: {{ .Chart.Name }}
+
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+        ports:
+        - containerPort: {{ .Values.service.port }}
+
+        envFrom:
+        - configMapRef:
+            name: {{ include "devops-command-center.fullname" . }}-config
+
+        - secretRef:
+            name: {{ include "devops-command-center.fullname" . }}-secret
+
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.port }}
+
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.port }}
+
+          initialDelaySeconds: 15
+          periodSeconds: 20

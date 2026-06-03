@@ -18,34 +18,50 @@ export default function EventsTable({ events }) {
           </thead>
 
           <tbody>
-            {events.map((event, index) => (
-              <tr
-                key={index}
-                className="border-b border-slate-800"
-              >
-                <td className="py-3">
-                  <span
-                    className={
-                      event.type === "Warning"
-                        ? "bg-red-500/20 text-red-400 px-3 py-1 rounded-full"
-                        : "bg-green-500/20 text-green-400 px-3 py-1 rounded-full"
-                    }
-                  >
-                    {event.type}
-                  </span>
-                </td>
 
-                <td>{event.reason}</td>
+  {events.length === 0 ? (
 
-                <td>{event.namespace}</td>
+    <tr>
+      <td
+        colSpan="5"
+        className="text-center py-8 text-slate-400"
+      >
+        No Events Found
+      </td>
+    </tr>
 
-                <td className="break-words"> {event.object} </td>
-                <td className="break-words">
-                  {event.message}
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  ) : (
+
+    events.map((event, index) => (
+      <tr
+        key={index}
+        className="border-b border-slate-800"
+      >
+        <td className="py-3">
+          {event.namespace}
+        </td>
+
+        <td>
+          {event.type}
+        </td>
+
+        <td>
+          {event.reason}
+        </td>
+
+        <td>
+          {event.object}
+        </td>
+
+        <td>
+          {event.message}
+        </td>
+      </tr>
+    ))
+
+  )}
+
+</tbody>
         </table>
       </div>
     </div>

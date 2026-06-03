@@ -34,7 +34,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: devops-command-center
-  namespace: default
+  namespace: devops-command-center
 
 roleRef:
   kind: ClusterRole

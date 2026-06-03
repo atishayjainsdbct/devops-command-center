@@ -1,17 +1,28 @@
 # Python
+venv/
 __pycache__/
 *.pyc
-venv/
 
 # Node
 node_modules/
+dist/
 
-# Terraform
-.terraform/
-*.tfstate
+# Build Files
+rendered.yaml
+
+# Backup Files
+*.bak
+
+# Environment
+.env
+.env.*
 
 # IDE
 .vscode/
+.idea/
 
 # OS
 .DS_Store
+
+# Logs
+*.log

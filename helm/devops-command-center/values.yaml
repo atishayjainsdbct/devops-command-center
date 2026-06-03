@@ -1,0 +1,35 @@
+replicaCount: 1
+
+image:
+  repository: devops-command-center
+  tag: v999
+  pullPolicy: Never
+
+service:
+  type: ClusterIP
+  port: 8000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+config:
+  environment: development
+  logLevel: INFO
+  refreshInterval: "10"
+
+secret:
+  dbPassword: supersecret123
+  jwtSecret: devops-command-center-jwt
+
+serviceAccount:
+  create: true
+  name: devops-command-center
+
+autoscaling:
+  enabled: false

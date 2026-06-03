@@ -1,17 +1,38 @@
 from kubernetes import client, config
+from kubernetes.config.config_exception import ConfigException
 from datetime import datetime
 import subprocess
 from kubernetes.client.rest import ApiException
+
+v1 = None
+
 try:
     config.load_incluster_config()
     print("Running inside Kubernetes")
-except:
-    config.load_kube_config()
-    print("Running locally")
+    v1 = client.CoreV1Api()
 
-v1 = client.CoreV1Api()
+except ConfigException:
+    try:
+        config.load_kube_config()
+        print("Running locally")
+        v1 = client.CoreV1Api()
+
+    except ConfigException:
+        print("No Kubernetes configuration found")
+
+
+def cluster_available():
+    return v1 is not None
+
 
 def get_pods(namespace=None):
+
+    if not cluster_available():
+        return [{
+            "name": "No Cluster Connected",
+            "namespace": "-",
+            "status": "Disconnected"
+        }]
 
     if namespace:
         pods = v1.list_namespaced_pod(namespace=namespace)
@@ -31,6 +52,10 @@ def get_pods(namespace=None):
 
 
 def get_namespaces():
+
+    if not cluster_available():
+        return ["No Cluster Connected"]
+
     namespaces = v1.list_namespace()
 
     namespace_list = []
@@ -40,7 +65,12 @@ def get_namespaces():
 
     return namespace_list
 
+
 def get_deployments():
+
+    if not cluster_available():
+        return []
+
     apps_v1 = client.AppsV1Api()
 
     deployments = apps_v1.list_deployment_for_all_namespaces()
@@ -56,8 +86,15 @@ def get_deployments():
         })
 
     return deployment_list
-    
+
+
 def scale_deployment(deployment_name, namespace, replicas):
+
+    if not cluster_available():
+        return {
+            "error": "No Kubernetes cluster connected"
+        }
+
     apps_v1 = client.AppsV1Api()
 
     deployment = apps_v1.read_namespaced_deployment(
@@ -77,7 +114,14 @@ def scale_deployment(deployment_name, namespace, replicas):
         "message": f"Deployment {deployment_name} scaled to {replicas} replicas"
     }
 
+
 def get_pod_logs(pod_name, namespace="default"):
+
+    if not cluster_available():
+        return {
+            "error": "No Kubernetes cluster connected"
+        }
+
     try:
         logs = v1.read_namespaced_pod_log(
             name=pod_name,
@@ -100,6 +144,12 @@ def get_pod_logs(pod_name, namespace="default"):
 
 
 def get_deployment_details(deployment_name, namespace="default"):
+
+    if not cluster_available():
+        return {
+            "error": "No Kubernetes cluster connected"
+        }
+
     apps_v1 = client.AppsV1Api()
 
     deployment = apps_v1.read_namespaced_deployment(
@@ -116,7 +166,14 @@ def get_deployment_details(deployment_name, namespace="default"):
         "creation_time": deployment.metadata.creation_timestamp
     }
 
+
 def restart_deployment(deployment_name, namespace):
+
+    if not cluster_available():
+        return {
+            "error": "No Kubernetes cluster connected"
+        }
+
     apps_v1 = client.AppsV1Api()
 
     deployment = apps_v1.read_namespaced_deployment(
@@ -142,7 +199,12 @@ def restart_deployment(deployment_name, namespace):
         "message": f"Deployment {deployment_name} restarted"
     }
 
+
 def get_events():
+
+    if not cluster_available():
+        return []
+
     events = v1.list_event_for_all_namespaces()
 
     event_list = []
@@ -158,7 +220,14 @@ def get_events():
 
     return event_list
 
+
 def delete_pod(pod_name, namespace="default"):
+
+    if not cluster_available():
+        return {
+            "error": "No Kubernetes cluster connected"
+        }
+
     v1.delete_namespaced_pod(
         name=pod_name,
         namespace=namespace
@@ -168,7 +237,14 @@ def delete_pod(pod_name, namespace="default"):
         "message": f"Pod {pod_name} deleted successfully"
     }
 
+
 def get_rollout_status(deployment_name, namespace="default"):
+
+    if not cluster_available():
+        return {
+            "error": "No Kubernetes cluster connected"
+        }
+
     apps_v1 = client.AppsV1Api()
 
     deployment = apps_v1.read_namespaced_deployment(
@@ -193,7 +269,12 @@ def get_rollout_status(deployment_name, namespace="default"):
         "status": status
     }
 
+
 def get_deployment_history(deployment_name, namespace="default"):
+
+    if not cluster_available():
+        return []
+
     apps_v1 = client.AppsV1Api()
 
     replica_sets = apps_v1.list_namespaced_replica_set(
@@ -222,7 +303,13 @@ def get_deployment_history(deployment_name, namespace="default"):
 
     return history
 
+
 def rollback_deployment(deployment_name, namespace="default"):
+
+    if not cluster_available():
+        return {
+            "error": "No Kubernetes cluster connected"
+        }
 
     result = subprocess.run(
         [
@@ -241,4 +328,51 @@ def rollback_deployment(deployment_name, namespace="default"):
         "stdout": result.stdout,
         "stderr": result.stderr,
         "returncode": result.returncode
+    }
+
+
+def get_cluster_health():
+
+    if not cluster_available():
+        return {
+            "api_status": "healthy",
+            "cluster_connected": False,
+            "total_nodes": 0,
+            "ready_nodes": 0,
+            "failed_pods": 0
+        }
+
+    nodes = v1.list_node()
+
+    total_nodes = len(nodes.items)
+    ready_nodes = 0
+
+    for node in nodes.items:
+
+        for condition in node.status.conditions:
+
+            if (
+                condition.type == "Ready"
+                and condition.status == "True"
+            ):
+                ready_nodes += 1
+
+    pods = v1.list_pod_for_all_namespaces()
+
+    failed_pods = 0
+
+    for pod in pods.items:
+
+        if pod.status.phase in [
+            "Failed",
+            "Unknown"
+        ]:
+            failed_pods += 1
+
+    return {
+        "api_status": "healthy",
+        "cluster_connected": True,
+        "total_nodes": total_nodes,
+        "ready_nodes": ready_nodes,
+        "failed_pods": failed_pods
     }
