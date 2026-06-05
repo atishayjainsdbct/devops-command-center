@@ -14,31 +14,25 @@ pipeline {
             }
         }
 
-        stage('Frontend Validation') {
-            steps {
-                container('node') {
-                    dir('frontend') {
-                        sh 'node --version'
-                        sh 'npm --version'
-                        sh 'ls -la'
-                        sh 'cat package.json | head'
-                    }
-                }
+        stage('Frontend Install') {
+    steps {
+        container('node') {
+            dir('frontend') {
+                sh 'npm install'
             }
         }
-
-        stage('Backend Validation') {
-            steps {
-                container('python') {
-                    dir('backend') {
-                        sh 'python --version'
-                        sh 'pip --version'
-                        sh 'ls -la'
-                        sh 'cat requirements.txt'
-                    }
-                }
-            }
-        }
-
     }
 }
+}
+
+        stage('Backend Install') {
+    steps {
+        container('python') {
+            dir('backend') {
+                sh 'pip install -r requirements.txt'
+            }
+        }
+    }
+}
+
+    }
