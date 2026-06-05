@@ -76,6 +76,16 @@ pipeline {
         }
 
 
+        stage('Kaniko Validation') {
+           steps {
+             container('kaniko') {
+                sh 'ls -la /kaniko'
+                sh '/kaniko/executor version'
+        }
+    }
+}
+
+
     }
 
     post {
