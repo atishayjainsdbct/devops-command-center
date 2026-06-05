@@ -6,11 +6,18 @@ pipeline {
     }
 
     stages {
-        stage('Agent Test') {
+
+        stage('Agent Check') {
             steps {
                 sh 'hostname'
-                sh 'pwd'
-                sh 'echo Running in Kubernetes Agent'
+            }
+        }
+
+        stage('Kaniko Check') {
+            steps {
+                container('kaniko') {
+                    sh '/kaniko/executor version'
+                }
             }
         }
     }
