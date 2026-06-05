@@ -1,23 +1,19 @@
-pipeline{
-    agent any
-
-    stages{
-        stage('Checkout'){
-            steps{
-                echo 'Source Code checked Out'
-            }
+pipeline {
+    agent {
+        kubernetes {
+            label 'kaniko'
         }
+    }
 
-        stage('Build'){
+    stages {
+
+        stage('Agent Test') {
             steps {
-                sh'echo Building Application'
+                sh 'hostname'
+                sh 'pwd'
+                sh 'echo Running inside Kubernetes Agent'
             }
         }
 
-        stage('Test'){
-            steps{
-                sh 'echo Running Tests'
-            }
-        }
     }
 }
