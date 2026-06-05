@@ -57,6 +57,24 @@ pipeline {
                 }
             }
         }
+        stage('Backend Dockerfile Check') {
+            steps {
+                dir('backend') {
+                    sh 'ls -la Dockerfile'
+                    sh 'head -20 Dockerfile'
+                }
+            }
+        }
+
+        stage('Frontend Dockerfile Check') {
+            steps {
+                dir('frontend') {
+                    sh 'ls -la Dockerfile'
+                    sh 'head -20 Dockerfile'
+                }
+            }
+        }
+
 
     }
 
@@ -70,3 +88,6 @@ pipeline {
         }
     }
 }
+
+
+
