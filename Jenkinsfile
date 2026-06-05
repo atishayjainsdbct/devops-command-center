@@ -1,19 +1,17 @@
 pipeline {
     agent {
         kubernetes {
-            label 'kaniko'
+            inheritFrom 'kaniko-agent'
         }
     }
 
     stages {
-
         stage('Agent Test') {
             steps {
                 sh 'hostname'
                 sh 'pwd'
-                sh 'echo Running inside Kubernetes Agent'
+                sh 'echo Running in Kubernetes Agent'
             }
         }
-
     }
 }
